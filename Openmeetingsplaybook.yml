@@ -1,0 +1,38 @@
+---
+- hosts: video
+  tasks:
+      - name: installation git 
+        yum:
+           name: git
+           state: latest
+        become: yes
+      - name: Try Ping/Pong 
+        ping:
+      - name: installation vim 
+        yum:
+           name: vim
+           state: latest
+        become: yes
+        become: yes
+      - name: install Docker 
+        yum:
+           name: docker
+           state: latest
+        become: yes
+      - name: Clone the repo Service of OpeenMeetings
+        git:
+           repo: 'https://github.com/fjudith/docker-openmeetings.git'
+           dest: /root/git/
+        become: yes
+      - name: set docker service up 
+        service:
+          name: docker
+          state: started 
+      - name: exectue DockerCommandS
+        become_user: root
+        command : 'docker run -it --rm --name openmeetings -p 1935:1935 -p 5080:5080 -p 8081:8081 fjudith/openmeetings && exit '
+        
+        
+
+ 
+...

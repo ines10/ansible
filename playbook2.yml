@@ -1,0 +1,74 @@
+---
+- hosts: webservers
+  tasks:
+  - name: Install Apache
+    yum:
+      name={{ item }}
+      state=present
+    with_items:
+      - httpd
+
+  - name: Ensure httpd is running
+    service:
+      name=httpd
+      state=started
+
+  - name: Ensure httpd is enabled
+    service:
+      name=httpd
+      enabled=yes
+
+  - name: Create sites.d directory
+    file:
+      path=/etc/httpd/conf.d/sites.d
+      state=directory
+      owner=root
+      group=root
+      mode=0755
+
+  - name: Add sites.d Include to httpd.conf
+    lineinfile:
+      dest=/etc/httpd/conf/httpd.conf
+      state=present
+      line='Include conf.d/sites.d/*.conf'
+    notify:
+      - restart httpd
+
+  - name: Create a VirtualHost file for each enabled VirtualHost
+    template:
+      src=apache_vhost.conf.j2
+      dest=/etc/httpd/conf.d/sites.d/ines.example.com.conf
+      owner=root
+      group=root
+      mode=0644
+
+    notify:
+      - restart httpd
+
+  - name: Create web directories for each enabled VirtualHost
+    file:
+      path=/var/www/html/ines.example.com
+      state=directory
+      owner=apache
+      group=apache
+      mode=0755
+  - name:  copy src.html to ines/indes.html
+    copy:
+      src=/etc/ansible/index.html
+      dest=/var/www/html/ines.example.com/
+      mode=0777
+  - name:  copy image  to www.ines.example.com
+    copy:
+      src=/etc/ansible/img_lights.jpg
+      dest=/var/www/html/ines.example.com/
+      mode=0777
+
+ 
+  handlers:
+  - name: restart httpd
+    service:
+      name=httpd
+      state=restarted
+
+ 
+

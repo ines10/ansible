@@ -1,0 +1,12 @@
+---
+- name: creation dossier   
+  become: yes
+  file: path=/home/{{ user }}/{{ item }} state=directory owner={{ user }}
+- name: lien vers www
+  become: yes
+  file: src=/home/{{ user }}/{{ item }} dest=/var/www/{{ item }} state=link 
+- name: cretae config nginx
+  template: src=template/nginx.j2 dest=/etc/nginx/sites-availale/{{ item }}
+- name: actvation du domain {{ item }}
+  file: src=/etc/nginx/sites-available/{{ item }} dest=/etc/nginx/sites-enabled/{{ item }} state=link
+  notify: reload nginx
